@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  dashboard:
+    container_name: dashboard
+    image: nitheesh2005/dashboard:latest
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    volumes:
+      - /opt/app/nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - app-net# - /opt/app/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+networks:
+  app-net:
+    driver: bridge
+
