@@ -35,7 +35,7 @@ jobs:
           [ -n "$DOCKER_HUB_USERNAME" ] || { echo "::error::Missing DOCKER_HUB_USERNAME"; exit 1; }
           echo "Secrets validated ✅"
 
-      - name: Prepare VPS (create stack dir, install docker if missing)
+      - name: Prepare VPS
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -48,17 +48,16 @@ jobs:
             STACK_DIR="/opt/app/stacks/dashboard"
             mkdir -p "$STACK_DIR"
 
-            # Ensure Docker & Compose plugin are installed
-            if ! command -v docker >/dev/null 2>&1; then
+            # Install Docker & Compose plugin if missing
+            if ! command -v docker >/dev/null; then
               curl -fsSL https://get.docker.com | sh
               sudo usermod -aG docker "$USER" || true
               sudo systemctl enable --now docker || true
             fi
-            docker --version || true
-            docker compose version || true
 
+            docker --version
+            docker compose version
             echo "✅ VPS prepared"
-            ls -la "$STACK_DIR" || true
 
       - name: Upload docker-compose.yml to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -86,7 +85,6 @@ jobs:
             IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/dashboard:latest"
 
             echo "Starting deployment from $COMPOSE ..."
-            [ -f "$COMPOSE" ] || { echo "::error::Missing $COMPOSE"; exit 1; }
 
             # Pull latest image
             docker compose -p dashboard -f "$COMPOSE" pull || docker pull "$IMAGE"
@@ -94,13 +92,7 @@ jobs:
             # Bring up stack
             docker compose -p dashboard -f "$COMPOSE" up -d --remove-orphans
 
-            # Validate nginx inside container
-            echo "Validating Nginx config inside 'dashboard' container..."
-            docker exec dashboard nginx -t
+            # Validate Nginx
+            docker exec dashboard nginx -t || { echo "::error::Nginx config invalid"; exit 1; }
 
             echo "✅ Dashboard deployed successfully"
- 
-
-
-
-
