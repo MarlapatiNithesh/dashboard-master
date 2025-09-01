@@ -1,15 +1,20 @@
+version: "3.9"
+
 services:
   dashboard:
     container_name: dashboard
-    image: yourdockerhub/dashboard:latest
+    image: nitheesh2005/dashboard:latest
     ports:
       - "8080:80"
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 512M  # Prevent OOM crashes
+    mem_limit: 512M  # Works with docker-compose
     volumes:
       - /opt/app/nginx/conf.d:/etc/nginx/conf.d:ro
       # Optional: override main nginx.conf
       # - /opt/app/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
