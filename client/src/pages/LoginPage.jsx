@@ -15,13 +15,26 @@ const LoginPage = () => {
     if (token) navigate('/bookings');
   }, [token, navigate]);
 
-  const handleLogin = () => {
-    if (email === 'admin@demo.com' && password === 'admin') {
-      login('demo-token', 'admin');
-    } else {
-      alert('Demo Login: admin@demo.com / admin');
-    }
-  };
+  // const handleLogin = () => {
+  //   if (email === 'admin@demo.com' && password === 'admin') {
+  //     login('demo-token', 'admin');
+  //   } else {
+  //     alert('Demo Login: admin@demo.com / admin');
+  //   }
+  // };
+
+  const handleLogin = async () => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const idToken = await user.getIdToken(); 
+    login(idToken, "admin"); 
+  } catch (err) {
+    console.error("Login failed:", err.message);
+    alert(err.message);
+  }
+};
 
   return (
     <Box maxW="md" mx="auto" mt={20} p={8} borderWidth={1} borderRadius={8} boxShadow="lg">
