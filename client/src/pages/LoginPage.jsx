@@ -1,8 +1,11 @@
+
 // File: src/pages/LoginPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Box, Input, Button, Heading } from '@chakra-ui/react';
 import { useRole } from '../context/RoleContext';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../auth'; 
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -28,7 +31,7 @@ const LoginPage = () => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    const idToken = await user.getIdToken(); 
+    const idToken = await user.getIdToken(); // ✅ real JWT
     login(idToken, "admin"); 
   } catch (err) {
     console.error("Login failed:", err.message);
@@ -46,4 +49,3 @@ const LoginPage = () => {
   );
 };
 export default LoginPage;
-
